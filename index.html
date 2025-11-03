@@ -1,0 +1,146 @@
+html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>كل سنة وانتي طيبة يا ماما ❤️</title>
+  <meta name="theme-color" content="#ff6b88"/>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='85' font-size='80'%3E%F0%9F%92%96%3C/text%3E%3C/svg%3E">
+  <style>
+    :root{--bg:#fff6f8;--accent:#ff5c8d;--muted:#666}
+    *{box-sizing:border-box}
+    body{
+      margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#fff);
+      font-family: 'Cairo', sans-serif, Arial;display:flex;align-items:center;justify-content:center;
+      padding:18px;text-align:center;overflow:hidden;
+    }
+    .card{width:100%;max-width:480px;background:white;border-radius:18px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,0.08)}
+    h1{color:var(--accent);margin:6px 0;font-size:22px}
+    p.lead{color:#333;margin:6px 0 14px}
+    .choices{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    button.opt{flex:1 1 45%;min-width:130px;padding:10px;border-radius:12px;border:0;background:linear-gradient(180deg,#ff7a9e,#ff5c8d);color:#fff;font-weight:700;cursor:pointer}
+    button.opt:active{transform:translateY(2px)}
+    #result{margin-top:16px;font-size:18px;color:var(--accent);font-weight:700}
+    .small{font-size:12px;color:var(--muted);margin-top:8px}
+    .btn{margin-top:12px;padding:10px 14px;border-radius:10px;border:0;background:#ffb6cc;color:#8b0033;font-weight:700;cursor:pointer}
+    /* hearts */
+    .heart{position:fixed;font-size:22px;pointer-events:none;will-change:transform,opacity}
+    @keyframes floatUp {0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-650px) scale(1.6);opacity:0}}
+    /* small install hint */
+    .install-hint{margin-top:10px;background:#fff6fa;border-radius:10px;padding:8px;color:#6b2a3a;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card" role="application" aria-label="هدية لماما">
+    <h1>🎉 كل سنة وانتي طيبة يا ماما 🎉</h1>
+    <p class="lead">اختاري حاجة من اللي تحبيها، وبعدين المفاجأة 😂</p>
+
+    <div class="choices" id="choices">
+      <button class="opt" onclick="pick('فطار على السرير')">فطار على السرير</button>
+      <button class="opt" onclick="pick('يوم دلع')">يوم دلع</button>
+      <button class="opt" onclick="pick('هدية خاصة')">هدية خاصة</button>
+      <button class="opt" onclick="pick('أكلة بتحبيها')">أكلة بتحبيها</button>
+    </div>
+
+    <div id="result" aria-live="polite"></div>
+    <div class="small">ممكن تضغط على الثلاث نقاط في المتصفح وتختار "Add to Home screen" علشان يبقى أيقونة زي التطبيق.</div>
+    <div id="installHint" class="install-hint" style="display:none">لو ظهرلك مربع "Install" / "تثبيت" من المتصفح — دوس عليه عشان يثبت التطبيق فعليًا.</div>
+  </div>
+
+<script>
+/* --- Manifest ديناميكي (عشان لو فتح الملف محليًا يبقى في manifest) --- */
+(function attachManifest(){
+  const manifest = {
+    "name": "هدية لماما",
+    "short_name": "هدية لماما",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#fff6f8",
+    "theme_color": "#ff6b88",
+    "icons": [
+      {"src":"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='85' font-size='80'%3E%F0%9F%92%96%3C/text%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = url;
+  document.head.appendChild(link);
+})();
+
+/* --- simple "app" behavior --- */
+const choicesDiv = document.getElementById('choices');
+const resultDiv = document.getElementById('result');
+
+function pick(choice){
+  choicesDiv.style.display = 'none';
+  resultDiv.innerHTML = `كنت هجبلك ${choice}، بس <span style="color:#333">ممعيش فلوس 😂</span><br><span style="display:block;margin-top:8px;color:#ff3b78;font-weight:800">كل سنة وانتي طيبة يا ماما ❤️</span><button class="btn" style="display:block;margin:12px auto" onclick="restart()">اختيار تاني</button>`;
+  spawnHearts(28);
+  // لو متصفح بيدعم واجهة تثبيت تلقائية نعرض تلميح
+  setTimeout(()=>{ showInstallHint(); },600);
+}
+
+/* restart */
+function restart(){
+  choicesDiv.style.display = '';
+  resultDiv.innerHTML = '';
+}
+
+/* hearts */
+function spawnHearts(n){
+  for(let i=0;i<n;i++){
+    const h = document.createElement('div');
+    h.className='heart';
+    h.textContent = (Math.random()>0.25)?'💖':'💕';
+    h.style.left = (Math.random()*90)+'vw';
+    h.style.top = (70+Math.random()*25)+'vh';
+    h.style.fontSize = (16+Math.random()*28)+'px';
+    const dur = (2.5 + Math.random()*3).toFixed(2)+'s';
+    h.style.animation = `floatUp ${dur} linear forwards`;
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(), 7000);
+  }
+}
+
+/* --- service worker registration (لو الصفحة متخدمة من HTTP/HTTPS) --- */
+if('serviceWorker' in navigator){
+  try{
+    // نبني كود الـsw كـ blob عشان ميحتاجش ملف خارجي
+    const swCode = `self.addEventListener('install', e=>{self.skipWaiting();});self.addEventListener('activate', e=>{e.waitUntil(clients.claim());});self.addEventListener('fetch', e=>{e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)))})`;
+    const swBlob = new Blob([swCode], {type: 'application/javascript'});
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl).then(()=>console.log('sw registered')).catch(()=>console.log('sw failed'));
+  }catch(e){console.log('sw err', e)}
+}
+
+/* --- محاولة إظهار تلميح التثبيت لو متاح --- */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  // منع المتصفح من إظهار الديالوغ التلقائي واحفظ الحدث
+  e.preventDefault();
+  deferredPrompt = e;
+  // نعرض رسالة بسيطة للمستخدم
+  document.getElementById('installHint').style.display = 'block';
+});
+
+function showInstallHint(){
+  if(deferredPrompt){
+    // نجرب نعرض نافذة التثبيت
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(choiceResult => {
+      if(choiceResult.outcome === 'accepted') {
+        console.log('user accepted install');
+      }
+      deferredPrompt = null;
+      document.getElementById('installHint').style.display = 'none';
+    });
+  } else {
+    // لو مافيش event، سيبها للمستخدم يضغط الثلاث نقاط ويختار Add to Home screen
+    document.getElementById('installHint').style.display = 'block';
+    setTimeout(()=>document.getElementById('installHint').style.display='none',5000);
+  }
+}
+</script>
+</body>
+</html>
